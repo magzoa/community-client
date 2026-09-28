@@ -1,0 +1,11 @@
+/*
+ * Estilos globales mínimos.
+ * Vuetify aporta su propio reset y sistema de temas/tipografía,
+ * por lo que aquí solo dejamos ajustes base que no chocan con él.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}

@@ -1,0 +1,28 @@
+# ============================================================================
+#  community-client — Stack de producción para Portainer
+#  SPA Vue compilada y servida por Nginx.
+#  VITE_API_URL se define como variable de entorno del Stack y se inyecta
+#  en el build (se "hornea" en el bundle).
+# ============================================================================
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # URL pública de la API del servidor Laravel.
+        # Ej: http://18.231.63.186/api  (la API va por el puerto 80)
+        VITE_API_URL: "${VITE_API_URL:-http://localhost:8000/api}"
+    image: community-client:latest
+    container_name: community-client
+    restart: unless-stopped
+    ports:
+      # Puerto público del cliente. Abrir 5173 en el Security Group de AWS.
+      - "5173:80"
+    networks:
+      - community-client
+
+networks:
+  community-client:
+    driver: bridge

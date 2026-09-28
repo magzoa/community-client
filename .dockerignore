@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+
+.git
+.gitignore
+
+# Entornos locales (VITE_API_URL se pasa por build-arg, no por .env)
+.env
+.env.*
+!.env.production.example
+
+*.log
+.vscode
+.idea
+.DS_Store
+README.md
