@@ -78,7 +78,7 @@ async function handleLogout() {
         :to="{ name: 'home' }"
         class="text-white text-decoration-none font-weight-bold"
       >
-        AWS UG
+        AWS User Groups Canindeyú
       </router-link>
     </v-app-bar-title>
 

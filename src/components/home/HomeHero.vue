@@ -33,27 +33,27 @@ function linkIcon(link) {
       color: heroTheme.textColor,
     }"
   >
-    <v-container class="py-16">
+    <v-container class="py-10">
       <v-row align="center" justify="center">
         <v-col cols="12" md="9" class="text-center">
-          <v-chip color="white" variant="flat" class="mb-4" size="small">
+          <!-- <v-chip color="white" variant="flat" class="mb-4" size="small">
             <v-icon icon="mdi-aws" start />
             AWS User Group
-          </v-chip>
+          </v-chip> -->
 
           <h1 class="text-h3 text-md-h2 font-weight-bold mb-4">
-            {{ settings.main_title || 'Comunidad AWS UG' }}
+            {{ settings.main_title || 'Comunidad AWS UG Canindeyú' }}
           </h1>
 
           <p class="text-h6 font-weight-regular mb-2" style="opacity: 0.9">
             {{ settings.secondary_title || 'Aprende, comparte y crece en la nube.' }}
           </p>
 
-          <p v-if="settings.daily_phrase" class="text-body-1 font-italic mb-8" style="opacity: 0.85">
+          <p v-if="settings.daily_phrase" class="text-body-1 font-italic mb-5" style="opacity: 0.85">
             "{{ settings.daily_phrase }}"
           </p>
 
-          <div class="mb-8">
+          <div class="mb-5">
             <v-btn size="large" color="white" class="text-black" @click="emit('register')">
               <v-icon icon="mdi-account-plus" start />
               Únete a la comunidad
@@ -77,7 +77,7 @@ function linkIcon(link) {
       </v-row>
 
       <!-- Estadísticas -->
-      <v-row justify="center" class="mt-12">
+      <!-- <v-row justify="center" class="mt-8">
         <v-col cols="4" md="3" class="text-center">
           <v-icon :icon="staticStats.membersIcon" color="white" size="32" class="mb-2" />
           <div class="text-h5 font-weight-bold">{{ settings.members_count ?? 0 }}</div>
@@ -93,7 +93,7 @@ function linkIcon(link) {
           <div class="text-h5 font-weight-bold">{{ staticStats.yearsValue }}</div>
           <div class="text-body-2" style="opacity: 0.85">{{ staticStats.yearsLabel }}</div>
         </v-col>
-      </v-row>
+      </v-row> -->
     </v-container>
   </section>
 </template>

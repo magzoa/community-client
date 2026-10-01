@@ -53,36 +53,8 @@ export const members = [
   },
 ]
 
-// Eventos ya realizados por la comunidad
-export const pastEvents = [
-  {
-    id: 1,
-    title: 'AWS Community Day 2025',
-    date: '15 de marzo, 2025',
-    location: 'Asunción, Paraguay',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
-    description:
-      'Un día completo de charlas sobre arquitecturas serverless, contenedores y buenas prácticas en la nube.',
-  },
-  {
-    id: 2,
-    title: 'Workshop: IaC con Terraform',
-    date: '8 de febrero, 2025',
-    location: 'Online',
-    image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=600&q=80',
-    description:
-      'Taller práctico para desplegar infraestructura en AWS usando Terraform desde cero.',
-  },
-  {
-    id: 3,
-    title: 'Meetup: Machine Learning en AWS',
-    date: '20 de noviembre, 2024',
-    location: 'Ciudad del Este, Paraguay',
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80',
-    description:
-      'Introducción a SageMaker y casos de uso reales de ML aplicados en la industria local.',
-  },
-]
+// (Los eventos pasados mock se retiraron; el apartado Meetup destacado del home
+// se configura desde admin y viene de site_settings.)
 
 // Estadísticas estáticas del banner (eventos y años; miembros es dinámico vía API).
 export const staticStats = {

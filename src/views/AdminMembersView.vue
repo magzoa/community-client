@@ -4,6 +4,8 @@ import adminService from '../services/admin'
 import catalogService from '../services/catalogs'
 import ManageRolesDialog from '../components/admin/ManageRolesDialog.vue'
 import EditMemberDialog from '../components/admin/EditMemberDialog.vue'
+import EditMemberFullDialog from '../components/admin/EditMemberFullDialog.vue'
+import ChangeNicknameDialog from '../components/admin/ChangeNicknameDialog.vue'
 import { useAuthStore } from '../stores/auth'
 
 // Cuando se usa dentro de las pestañas de AdminView, se omite el contenedor/título
@@ -31,9 +33,45 @@ const communityRolesCatalog = ref([])
 const editDialog = ref(false)
 const editingCatalogsMember = ref(null)
 
+// Modal de edición completa
+const fullEditDialog = ref(false)
+const fullEditMemberId = ref(null)
+
+function openFullEdit(member) {
+  fullEditMemberId.value = member.id
+  fullEditDialog.value = true
+}
+
+function onFullEditSaved(msg) {
+  successMessage.value = msg
+  fetchMembers()
+}
+
+// Modal cambiar nickname
+const nicknameDialog = ref(false)
+const nicknameMember = ref(null)
+
+function openNickname(member) {
+  nicknameMember.value = member
+  nicknameDialog.value = true
+}
+
+function onNicknameSaved(msg) {
+  successMessage.value = msg
+  fetchMembers()
+}
+
 // Filtros de catálogo
 const professionalFilter = ref(null)
 const communityRoleFilter = ref(null)
+
+// Búsqueda por nombre/apellido (con debounce)
+const search = ref('')
+let searchTimer = null
+function onSearchInput() {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(fetchMembers, 400)
+}
 
 // Diálogo de confirmación de eliminación
 const deleteDialog = ref(false)
@@ -106,12 +144,14 @@ async function fetchMembers() {
     if (statusFilter.value) params.status = statusFilter.value
     if (professionalFilter.value) params.professional_profile = professionalFilter.value
     if (communityRoleFilter.value) params.community_role = communityRoleFilter.value
+    if (search.value.trim()) params.search = search.value.trim()
     const { data } = await adminService.listMembers(params)
     // El backend devuelve { data: [...], meta: {...} }
     members.value = (data.data || []).map((m) => ({
       id: m.id,
       user_id: m.user_id,
       first_name: m.first_name,
+      nickname: m.user?.nickname || '',
       email: m.user?.email || '',
       status: m.status,
       roles: (m.user?.roles || []).map((r) => r.name),
@@ -226,6 +266,9 @@ onMounted(() => {
   fetchCatalogs()
   fetchMembers()
 })
+
+// Permite al padre (AdminView) refrescar la tabla tras registrar un miembro
+defineExpose({ fetchMembers })
 </script>
 
 <template>
@@ -240,6 +283,19 @@ onMounted(() => {
 
     <!-- Filtros -->
     <v-row class="mb-2" dense>
+      <v-col cols="12">
+        <v-text-field
+          v-model="search"
+          label="Buscar por nombre o apellido"
+          prepend-inner-icon="mdi-magnify"
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
+          @update:model-value="onSearchInput"
+          @click:clear="fetchMembers"
+        />
+      </v-col>
       <v-col cols="12" sm="4">
         <v-select
           v-model="statusFilter"
@@ -378,10 +434,28 @@ onMounted(() => {
             color="primary"
             size="small"
             variant="text"
-            @click="openEdit(item)"
+            @click="openFullEdit(item)"
           >
             <v-icon icon="mdi-pencil" start />
             Editar
+          </v-btn>
+          <v-btn
+            color="primary"
+            size="small"
+            variant="text"
+            @click="openEdit(item)"
+          >
+            <v-icon icon="mdi-tag-multiple" start />
+            Rol/Perfil
+          </v-btn>
+          <v-btn
+            color="warning"
+            size="small"
+            variant="text"
+            @click="openNickname(item)"
+          >
+            <v-icon icon="mdi-at" start />
+            Nickname
           </v-btn>
           <v-btn
             color="primary"
@@ -443,13 +517,29 @@ onMounted(() => {
       @save="saveRoles"
     />
 
-    <!-- Modal de edición de catálogos del miembro -->
+    <!-- Modal de edición de catálogos del miembro (rápida) -->
     <EditMemberDialog
       v-model="editDialog"
       :member="editingCatalogsMember"
       :professional-profiles="professionalProfiles"
       :community-roles="communityRolesCatalog"
       @save="saveCatalogs"
+    />
+
+    <!-- Modal de edición completa del miembro -->
+    <EditMemberFullDialog
+      v-model="fullEditDialog"
+      :member-id="fullEditMemberId"
+      :professional-profiles="professionalProfiles"
+      :community-roles="communityRolesCatalog"
+      @saved="onFullEditSaved"
+    />
+
+    <!-- Modal de cambio de nickname -->
+    <ChangeNicknameDialog
+      v-model="nicknameDialog"
+      :member="nicknameMember"
+      @saved="onNicknameSaved"
     />
   </v-container>
 </template>

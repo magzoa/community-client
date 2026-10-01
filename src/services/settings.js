@@ -7,9 +7,21 @@ export default {
     return http.get('/public/site-settings')
   },
 
-  // Admin: actualizar textos del banner
+  // Admin: actualizar textos del banner (y campos del meetup)
   update(payload) {
     return http.put('/admin/site-settings', payload)
+  },
+
+  // Imagen del apartado Meetup
+  uploadMeetupImage(file) {
+    const formData = new FormData()
+    formData.append('image', file)
+    return http.post('/admin/site-settings/meetup-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  deleteMeetupImage() {
+    return http.delete('/admin/site-settings/meetup-image')
   },
 
   // ── Redes del banner (admin) ───────────────────────────────

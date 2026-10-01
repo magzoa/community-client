@@ -3,8 +3,18 @@ import { ref } from 'vue'
 import AdminMembersView from './AdminMembersView.vue'
 import CatalogManager from '../components/admin/CatalogManager.vue'
 import BannerManager from '../components/admin/BannerManager.vue'
+import RegisterMemberForm from '../components/admin/RegisterMemberForm.vue'
 
 const tab = ref('members')
+
+// Referencia a la tabla de miembros para poder refrescarla desde aquí
+const membersViewRef = ref(null)
+
+// Al registrar un miembro: refresca la tabla y lleva a la pestaña Miembros
+function onMemberRegistered() {
+  membersViewRef.value?.fetchMembers()
+  tab.value = 'members'
+}
 </script>
 
 <template>
@@ -18,6 +28,10 @@ const tab = ref('members')
       <v-tab value="members">
         <v-icon icon="mdi-account-group" start />
         Miembros
+      </v-tab>
+      <v-tab value="register">
+        <v-icon icon="mdi-account-plus" start />
+        Registrar miembro
       </v-tab>
       <v-tab value="community-roles">
         <v-icon icon="mdi-account-star" start />
@@ -35,7 +49,11 @@ const tab = ref('members')
 
     <v-window v-model="tab">
       <v-window-item value="members">
-        <AdminMembersView embedded />
+        <AdminMembersView ref="membersViewRef" embedded />
+      </v-window-item>
+
+      <v-window-item value="register">
+        <RegisterMemberForm @registered="onMemberRegistered" />
       </v-window-item>
 
       <v-window-item value="community-roles">

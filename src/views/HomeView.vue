@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import HomeHero from '../components/home/HomeHero.vue'
 import MembersShowcase from '../components/home/MembersShowcase.vue'
-import PastEvents from '../components/home/PastEvents.vue'
+import MeetupSection from '../components/home/MeetupSection.vue'
 import settingsService from '../services/settings'
 
 // Reenvía el CTA del hero hacia el padre (App) para abrir el modal de registro
@@ -28,6 +28,6 @@ onMounted(fetchSettings)
   <div>
     <HomeHero :settings="settings" @register="emit('register')" />
     <MembersShowcase />
-    <PastEvents />
+    <MeetupSection :settings="settings" />
   </div>
 </template>

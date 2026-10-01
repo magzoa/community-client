@@ -9,8 +9,21 @@ const successMessage = ref('')
 
 // Textos del banner
 const settingsForm = ref(null)
-const settings = ref({ main_title: '', secondary_title: '', daily_phrase: '' })
+const settings = ref({
+  main_title: '',
+  secondary_title: '',
+  daily_phrase: '',
+  meetup_title: '',
+  meetup_subtitle: '',
+  meetup_description: '',
+  meetup_url: '',
+})
 const membersCount = ref(0)
+
+// Imagen del meetup
+const meetupImage = ref('')
+const meetupImageFile = ref(null)
+const meetupImagePreview = ref('')
 
 // Redes del banner
 const links = ref([])
@@ -46,12 +59,20 @@ async function fetchAll() {
   try {
     // Textos + count vienen del endpoint público (una sola fuente)
     const pub = await settingsService.getPublic()
+    const s = pub.data.settings
     settings.value = {
-      main_title: pub.data.settings.main_title || '',
-      secondary_title: pub.data.settings.secondary_title || '',
-      daily_phrase: pub.data.settings.daily_phrase || '',
+      main_title: s.main_title || '',
+      secondary_title: s.secondary_title || '',
+      daily_phrase: s.daily_phrase || '',
+      meetup_title: s.meetup_title || '',
+      meetup_subtitle: s.meetup_subtitle || '',
+      meetup_description: s.meetup_description || '',
+      meetup_url: s.meetup_url || '',
     }
-    membersCount.value = pub.data.settings.members_count || 0
+    meetupImage.value = s.meetup_image || ''
+    meetupImageFile.value = null
+    meetupImagePreview.value = ''
+    membersCount.value = s.members_count || 0
     // Todas las redes (admin, incluye inactivas)
     const res = await settingsService.listLinks()
     links.value = res.data.data || []
@@ -74,6 +95,39 @@ async function saveSettings() {
     errorMessage.value = data?.errors?.[0] || data?.message || 'No se pudo guardar.'
   } finally {
     saving.value = false
+  }
+}
+
+// ── Imagen del Meetup ──
+function onMeetupImageSelected(file) {
+  const f = Array.isArray(file) ? file[0] : file
+  meetupImageFile.value = f || null
+  meetupImagePreview.value = f ? URL.createObjectURL(f) : ''
+}
+
+async function uploadMeetupImage() {
+  if (!meetupImageFile.value) return
+  errorMessage.value = ''
+  try {
+    const { data } = await settingsService.uploadMeetupImage(meetupImageFile.value)
+    meetupImage.value = data.settings.meetup_image || ''
+    meetupImageFile.value = null
+    meetupImagePreview.value = ''
+    successMessage.value = 'Imagen del meetup actualizada.'
+  } catch (error) {
+    const d = error.response?.data
+    errorMessage.value = d?.errors?.[0] || d?.message || 'No se pudo subir la imagen.'
+  }
+}
+
+async function removeMeetupImage() {
+  errorMessage.value = ''
+  try {
+    await settingsService.deleteMeetupImage()
+    meetupImage.value = ''
+    successMessage.value = 'Imagen del meetup eliminada.'
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || 'No se pudo eliminar la imagen.'
   }
 }
 
@@ -220,6 +274,91 @@ onMounted(fetchAll)
         <v-spacer />
         <v-btn color="primary" variant="flat" :loading="saving" @click="saveSettings">
           Guardar textos
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <!-- Meetup destacado -->
+    <v-card class="mb-6" elevation="2" rounded="lg">
+      <v-card-title>Meetup destacado</v-card-title>
+      <v-card-text>
+        <v-row>
+          <!-- Imagen a la izquierda -->
+          <v-col cols="12" md="4">
+            <div class="text-caption text-medium-emphasis mb-2">Imagen</div>
+            <v-img
+              v-if="meetupImagePreview || meetupImage"
+              :src="meetupImagePreview || meetupImage"
+              height="160"
+              cover
+              rounded="lg"
+              class="mb-2"
+            />
+            <div v-else class="d-flex align-center justify-center bg-grey-lighten-3 rounded-lg mb-2" style="height:160px">
+              <v-icon icon="mdi-image" size="48" color="grey" />
+            </div>
+            <v-file-input
+              label="Seleccionar imagen"
+              accept="image/jpeg,image/png,image/webp"
+              prepend-icon="mdi-camera"
+              variant="outlined"
+              density="compact"
+              hide-details
+              @update:model-value="onMeetupImageSelected"
+            />
+            <div class="d-flex ga-2 mt-2">
+              <v-btn
+                color="primary"
+                variant="tonal"
+                size="small"
+                :disabled="!meetupImageFile"
+                @click="uploadMeetupImage"
+              >
+                Subir imagen
+              </v-btn>
+              <v-btn
+                v-if="meetupImage"
+                color="error"
+                variant="text"
+                size="small"
+                @click="removeMeetupImage"
+              >
+                Quitar
+              </v-btn>
+            </div>
+          </v-col>
+
+          <!-- Detalle a la derecha -->
+          <v-col cols="12" md="8">
+            <v-text-field
+              v-model="settings.meetup_title"
+              label="Título del meetup"
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="settings.meetup_subtitle"
+              label="Subtítulo"
+              variant="outlined"
+            />
+            <v-text-field
+              v-model="settings.meetup_url"
+              label="URL del meetup"
+              placeholder="https://meetup.com/..."
+              variant="outlined"
+            />
+            <v-textarea
+              v-model="settings.meetup_description"
+              label="Descripción"
+              variant="outlined"
+              rows="3"
+            />
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer />
+        <v-btn color="primary" variant="flat" :loading="saving" @click="saveSettings">
+          Guardar meetup
         </v-btn>
       </v-card-actions>
     </v-card>
